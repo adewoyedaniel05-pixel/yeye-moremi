@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b6b4f">
+<title>Ymo Express: food delivery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14201a; --muted:#5d6b63; --line:#e1e6df; --bg:#f6f7f3; --card:#fff;
+  --green:#0b6b4f; --green-d:#084f3b; --green-t:#e3f1ea; --pepper:#ff5a1f; --sun:#ffd23f; --danger:#b42318; --danger-t:#fde8e6;
+  --r:14px; --shadow:0 1px 2px rgba(20,32,26,.06),0 6px 20px rgba(20,32,26,.06);
+  --head:"Bricolage Grotesque",system-ui,sans-serif; --body:"DM Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:400 16px/1.5 var(--body);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+main{flex:1}
+h1,h2,h3{font-family:var(--head);line-height:1.1;margin:0;letter-spacing:-.01em}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--pepper);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.muted{color:var(--muted)}
+.hide{display:none!important}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:12px;height:64px}
+.logo{font:800 22px var(--head);text-decoration:none;color:var(--green);display:flex;align-items:center;gap:8px;margin-right:auto}
+.logo i{width:28px;height:28px;border-radius:9px;background:var(--pepper);display:grid;place-items:center;color:#fff;font:800 15px var(--head);font-style:normal}
+.nav a.link{text-decoration:none;font-weight:500;padding:8px 10px;border-radius:8px}
+.nav a.link:hover{background:var(--green-t)}
+
+/* buttons + fields */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:11px 20px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;text-decoration:none;transition:background .15s,transform .05s}
+.btn:hover{background:var(--green-d)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.alt:hover{background:var(--green-t)}
+.btn.hot{background:var(--pepper)}
+.btn.hot:hover{background:#e84a10}
+.btn.sm{padding:7px 14px;font-size:14px}
+.btn.danger{background:#fff;color:var(--danger);border:1px solid #f3c5c0}
+.btn.block{width:100%}
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-weight:700;font-size:14px;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1px solid #cfd6cd;background:#fff;border-radius:10px;padding:11px 12px}
+.field textarea{resize:vertical;min-height:76px}
+.field small{color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;background:var(--green-t);color:var(--green-d)}
+.pill.warn{background:#fff3cd;color:#7a5a00}
+.pill.off{background:#eceeea;color:#555}
+.pill.bad{background:var(--danger-t);color:var(--danger)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.pad{padding:20px}
+.err{background:var(--danger-t);color:var(--danger);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-weight:500}
+
+/* hero */
+.hero{background:var(--green);color:#fff;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center;padding-top:48px;padding-bottom:48px}
+.hero h1{font-size:clamp(34px,5.4vw,60px);font-weight:800}
+.hero p{font-size:18px;max-width:30em;opacity:.9;margin:16px 0 24px}
+.search{display:flex;background:#fff;border-radius:999px;padding:6px 6px 6px 18px;max-width:480px;align-items:center;gap:8px}
+.search input{flex:1;border:0;outline:0;background:none;color:var(--ink);min-width:0;padding:8px 0}
+.search:focus-within{box-shadow:0 0 0 3px var(--sun)}
+.ticket{background:#fff;color:var(--ink);border-radius:18px;padding:22px;transform:rotate(2deg);box-shadow:0 20px 40px rgba(0,0,0,.25);position:relative}
+.ticket::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:8px;background:radial-gradient(circle at 8px 0,#fff 7px,transparent 8px) 0 0/16px 8px repeat-x}
+.ticket h3{font-size:20px}
+.ticket ol{list-style:none;margin:14px 0 0;padding:0}
+.ticket li{display:flex;gap:10px;align-items:center;padding:6px 0;color:var(--muted)}
+.ticket li.done{color:var(--ink);font-weight:500}
+.ticket li b{width:20px;height:20px;border-radius:50%;border:2px solid #cfd6cd;display:grid;place-items:center;font-size:12px;flex:none}
+.ticket li.done b{background:var(--green);border-color:var(--green);color:#fff}
+.ticket li.now b{border-color:var(--pepper);background:var(--sun)}
+.ticket li.now{color:var(--ink);font-weight:700}
+
+/* browse */
+.sect{padding-top:28px;padding-bottom:60px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 18px;scrollbar-width:none}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 16px;font-weight:500;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
+.rcard{display:block;text-decoration:none;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.rcard:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(20,32,26,.12)}
+.cover{height:130px;position:relative;display:grid;place-items:center;color:rgba(255,255,255,.95);font:800 64px var(--head);
+  background-image:radial-gradient(circle at 20% 120%,rgba(255,255,255,.28) 0 22%,transparent 23%),radial-gradient(circle at 95% -10%,rgba(0,0,0,.14) 0 30%,transparent 31%)}
+.cover .pill{position:absolute;left:12px;top:12px;font-size:12px;font-family:var(--body)}
+.rcard .body{padding:14px 16px 16px}
+.rcard h3{font-size:19px}
+.rcard.closed .cover{filter:grayscale(.85)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty h3{color:var(--ink);margin-bottom:8px;font-size:22px}
+.skel{height:230px;border-radius:var(--r);background:linear-gradient(90deg,#eceee9,#f6f7f3,#eceee9);background-size:200% 100%;animation:sk 1.2s infinite linear}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* restaurant */
+.rhead{color:#fff;padding:34px 0 28px;background-image:radial-gradient(circle at 90% 130%,rgba(255,255,255,.22) 0 25%,transparent 26%)}
+.rhead h1{font-size:clamp(30px,4.5vw,46px);font-weight:800}
+.rhead p{margin:8px 0 0;max-width:40em;opacity:.95}
+.back{display:inline-block;margin-bottom:14px;text-decoration:none;opacity:.9;font-weight:500}
+.cat{font-size:22px;margin:30px 0 12px}
+.item{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item b{font-size:17px}
+.item .price{font-weight:700;margin-top:4px}
+.stepper{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:999px;background:#fff}
+.stepper button{width:34px;height:34px;border:0;background:none;font-size:20px;cursor:pointer;border-radius:50%}
+.stepper button:hover{background:var(--green-t)}
+.stepper span{min-width:24px;text-align:center;font-weight:700}
+.cartbar{position:fixed;left:16px;right:16px;bottom:16px;z-index:15;max-width:560px;margin:0 auto}
+.cartbar .btn{width:100%;justify-content:space-between;padding:15px 22px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,20,15,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:#fff;z-index:41;transform:translateX(100%);transition:transform .22s;display:flex;flex-direction:column}
+body.cart-open .scrim{opacity:1;pointer-events:auto}
+body.cart-open .drawer{transform:none}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+.drawer .scroll{flex:1;overflow:auto;padding:8px 20px}
+.drawer footer{padding:16px 20px;border-top:1px solid var(--line)}
+.x{border:0;background:none;font-size:26px;cursor:pointer;line-height:1;padding:4px 8px;border-radius:8px}
+.line{display:flex;justify-content:space-between;gap:12px;padding:5px 0}
+.line.total{font-weight:800;font-size:18px;border-top:1px solid var(--line);margin-top:6px;padding-top:12px}
+.badge{background:var(--pepper);color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:1px 7px;margin-left:6px}
+
+/* forms / layouts */
+.narrow{max-width:440px;margin:40px auto}
+.split{display:grid;grid-template-columns:1.3fr .8fr;gap:24px;align-items:start;padding:32px 0 60px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#eceee9;padding:4px;border-radius:12px;margin-bottom:18px}
+.seg label{text-align:center;padding:9px;border-radius:9px;cursor:pointer;font-weight:700}
+.seg input{position:absolute;opacity:0}
+.seg label:has(input:checked){background:#fff;box-shadow:var(--shadow)}
+.seg label:has(input:focus-visible){outline:3px solid var(--pepper)}
+.pay{display:flex;gap:12px;align-items:flex-start;border:1px solid #cfd6cd;border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;background:#fff}
+.pay:has(input:checked){border-color:var(--green);background:var(--green-t)}
+.pay.off{opacity:.55;cursor:not-allowed}
+.pay input{margin-top:5px;accent-color:var(--green)}
+
+/* tracking */
+.track{list-style:none;margin:20px 0 0;padding:0}
+.track li{position:relative;padding:0 0 22px 38px;color:var(--muted)}
+.track li::before{content:"";position:absolute;left:11px;top:24px;bottom:0;width:2px;background:var(--line)}
+.track li:last-child::before{display:none}
+.track li b{position:absolute;left:0;top:0;width:24px;height:24px;border-radius:50%;border:2px solid #cfd6cd;background:#fff;display:grid;place-items:center;font-size:13px}
+.track li.done{color:var(--ink)}
+.track li.done b{background:var(--green);border-color:var(--green);color:#fff}
+.track li.done::before{background:var(--green)}
+.track li.now{color:var(--ink);font-weight:700}
+.track li.now b{border-color:var(--pepper);background:var(--sun);box-shadow:0 0 0 5px rgba(255,210,63,.35)}
+@media (prefers-reduced-motion:no-preference){.track li.now b{animation:pulse 1.8s infinite}}
+@keyframes pulse{50%{box-shadow:0 0 0 9px rgba(255,210,63,0)}}
+.olist a{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px 20px;text-decoration:none;border-top:1px solid var(--line)}
+.olist a:first-child{border-top:0}
+.olist a:hover{background:var(--green-t)}
+
+/* dashboard */
+.dh{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;padding:28px 0 8px}
+.dh h1{font-size:32px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:14px 0 22px}
+.tabs button{border:0;background:none;padding:10px 16px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--green);border-color:var(--green)}
+.ocard{padding:18px 20px;margin-bottom:14px}
+.ocard .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.ocard ul{margin:10px 0;padding-left:18px}
+.ocard .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.mitem{display:flex;gap:14px;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid var(--line)}
+.mitem:first-child{border-top:0}
+.mitem.off b{color:var(--muted);text-decoration:line-through}
+.switch{position:relative;width:46px;height:26px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0}
+.switch i{position:absolute;inset:0;background:#cfd6cd;border-radius:999px;transition:background .15s;pointer-events:none}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s}
+.switch input:checked+i{background:var(--green)}
+.switch input:checked+i::after{transform:translateX(20px)}
+.switch input:focus-visible+i{outline:3px solid var(--pepper)}
+dialog{border:0;border-radius:18px;padding:24px;width:min(460px,calc(100% - 32px));box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(10,20,15,.5)}
+#toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-weight:500;opacity:0;pointer-events:none;transition:.2s;z-index:60;max-width:calc(100% - 32px)}
+#toast.show{opacity:1;transform:translateX(-50%)}
+footer.site{border-top:1px solid var(--line);padding:26px 0;color:var(--muted);font-size:14px}
+
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr;padding-top:36px;padding-bottom:36px}
+  .ticket{display:none}
+  .split{grid-template-columns:1fr}
+}
+@media (max-width:520px){.row2{grid-template-columns:1fr}.nav .link.opt,.nav .btn.opt{display:none}.nav .wrap{gap:6px}.logo{font-size:19px}}
+.nav .wrap>*{white-space:nowrap}
+</style>
+</head>
+<body>
+<header class="nav"><div class="wrap" id="nav"></div></header>
+<main id="app" tabindex="-1"></main>
+<footer class="site"><div class="wrap">Ymo Express. Fresh food from local kitchens, delivered.</div></footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Your cart"></aside>
+<dialog id="dlg"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ngn=n=>"₦"+Math.round(n).toLocaleString("en-NG");
+const lsGet=k=>{try{return localStorage.getItem(k)}catch{return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
+const lsDel=k=>{try{localStorage.removeItem(k)}catch{}};
+
+async function api(path,opt={}){
+  const r=await fetch("/api"+path,{method:opt.method||"GET",credentials:"same-origin",
+    headers:opt.body?{"Content-Type":"application/json"}:{},body:opt.body?JSON.stringify(opt.body):undefined});
+  let d=null;try{d=await r.json()}catch{}
+  if(!r.ok){const e=new Error(d?.error||"Something went wrong. Try again.");e.status=r.status;throw e}
+  return d;
+}
+let toastT;
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2800)}
+
+/* ---------- state ---------- */
+let me=null,cfg={card:false,deliveryFee:800,stages:[]},timer=null;
+let cart=(()=>{try{return JSON.parse(lsGet("ymo_cart"))}catch{return null}})()||{vendorId:null,vendorName:"",items:[]};
+const saveCart=()=>{lsSet("ymo_cart",JSON.stringify(cart));renderNav()};
+const cartCount=()=>cart.items.reduce((s,i)=>s+i.q,0);
+const cartSub=()=>cart.items.reduce((s,i)=>s+i.p*i.q,0);
+const go=h=>{location.hash=h};
+const view=h=>{$("#app").innerHTML=h};
+const initial=n=>esc((n||"?").trim().charAt(0).toUpperCase());
+
+/* ---------- nav ---------- */
+function renderNav(){
+  let h=`<a class="logo" href="#/"><i>Y</i>Ymo Express</a>`;
+  if(!me)h+=`<a class="link opt" href="#/signup/vendor">Sell on Ymo</a><a class="link" href="#/login">Sign in</a><a class="btn sm" href="#/signup">Sign up</a>`;
+  else if(me.role==="vendor")h+=`<a class="link" href="#/dashboard">Dashboard</a><button class="btn alt sm" id="out">Sign out</button>`;
+  else h+=`<a class="link" href="#/orders">My orders</a><button class="btn alt sm" id="cartbtn" aria-label="Open cart">Cart${cartCount()?`<span class="badge">${cartCount()}</span>`:""}</button><button class="btn alt sm opt" id="out">Sign out</button>`;
+  $("#nav").innerHTML=h;
+  $("#out")?.addEventListener("click",async()=>{await api("/auth/logout",{method:"POST"});me=null;renderNav();go("#/");toast("Signed out")});
+  $("#cartbtn")?.addEventListener("click",openCart);
+}
+
+/* ---------- cart ---------- */
+function addToCart(v,it){
+  if(cart.vendorId&&cart.vendorId!==v.id&&cart.items.length&&!confirm(`Your cart has items from ${cart.vendorName}. Start a new cart with ${v.name}?`))return false;
+  if(cart.vendorId!==v.id)cart={vendorId:v.id,vendorName:v.name,items:[]};
+  const l=cart.items.find(i=>i.id===it.id);
+  if(l)l.q=Math.min(50,l.q+1);else cart.items.push({id:it.id,n:it.name,p:it.price,q:1});
+  saveCart();return true;
+}
+function changeQty(id,d){
+  const l=cart.items.find(i=>i.id===id);if(!l)return;
+  l.q+=d;if(l.q<=0)cart.items=cart.items.filter(i=>i.id!==id);
+  if(!cart.items.length)cart={vendorId:null,vendorName:"",items:[]};
+  saveCart();
+}
+const qtyOf=id=>cart.items.find(i=>i.id===id)?.q||0;
+function openCart(){drawCart();document.body.classList.add("cart-open");$("#drawer .x")?.focus()}
+function closeCart(){document.body.classList.remove("cart-open")}
+function drawCart(){
+  const d=$("#drawer");
+  if(!cart.items.length){d.innerHTML=`<header><h2>Your cart</h2><button class="x" aria-label="Close cart">×</button></header><div class="scroll"><div class="empty"><h3>Your cart is empty</h3><p>Pick a restaurant and add something tasty.</p></div></div>`}
+  else d.innerHTML=`<header><div><h2>Your cart</h2><div class="muted">${esc(cart.vendorName)}</div></div><button class="x" aria-label="Close cart">×</button></header>
+  <div class="scroll">${cart.items.map(i=>`<div class="item"><div><b>${esc(i.n)}</b><div class="price">${ngn(i.p*i.q)}</div></div>
+    <div class="stepper"><button data-dec="${esc(i.id)}" aria-label="Remove one ${esc(i.n)}">−</button><span>${i.q}</span><button data-inc="${esc(i.id)}" aria-label="Add one ${esc(i.n)}">+</button></div></div>`).join("")}</div>
+  <footer><div class="line"><span class="muted">Subtotal</span><span>${ngn(cartSub())}</span></div>
+  <div class="line"><span class="muted">Delivery</span><span>${ngn(cfg.deliveryFee)}</span></div>
+  <div class="line total"><span>Total</span><span>${ngn(cartSub()+cfg.deliveryFee)}</span></div>
+  <button class="btn hot block" id="tocheckout" style="margin-top:14px">Go to checkout</button></footer>`;
+}
+$("#drawer").addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;
+  if(t.classList.contains("x"))return closeCart();
+  if(t.dataset.inc){changeQty(t.dataset.inc,1);drawCart();refreshMenuQty()}
+  if(t.dataset.dec){changeQty(t.dataset.dec,-1);drawCart();refreshMenuQty()}
+  if(t.id==="tocheckout"){closeCart();go("#/checkout")}
+});
+$("#scrim").addEventListener("click",closeCart);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeCart()});
+
+/* ---------- auth pages ---------- */
+function afterAuth(){
+  renderNav();
+  const next=lsGet("ymo_next");lsDel("ymo_next");
+  dtab="orders";
+  go(me.role==="vendor"?"#/dashboard":next||"#/");
+}
+function loginPage(){
+  view(`<div class="wrap"><form class="card pad narrow" id="f"><h1 style="font-size:30px;margin-bottom:6px">Welcome back</h1>
+  <p class="muted" style="margin:0 0 20px">Sign in as a customer or a restaurant.</p><div id="e"></div>
+  <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+  <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required></label>
+  <button class="btn block">Sign in</button>
+  <p class="muted" style="text-align:center;margin:16px 0 0">New here? <a href="#/signup">Create an account</a></p></form></div>`);
+  $("#f").onsubmit=async e=>{e.preventDefault();const b=$("#f button");b.disabled=true;
+    try{me=await api("/auth/login",{method:"POST",body:Object.fromEntries(new FormData(e.target))});afterAuth()}
+    catch(x){$("#e").innerHTML=`<div class="err">${esc(x.message)}</div>`;b.disabled=false}};
+}
+function signupPage(role){
+  view(`<div class="wrap"><form class="card pad narrow" id="f"><h1 style="font-size:30px;margin-bottom:6px">Create your account</h1>
+  <p class="muted" style="margin:0 0 18px">Order food, or sell it. Pick one.</p>
+  <div class="seg" role="radiogroup"><label><input type="radio" name="role" value="customer" ${role?"":"checked"}>I want to order</label><label><input type="radio" name="role" value="vendor" ${role?"checked":""}>I run a restaurant</label></div>
+  <div id="e"></div>
+  <label class="field"><span>Your name</span><input name="name" autocomplete="name" required></label>
+  <div class="row2"><label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+  <label class="field"><span>Phone</span><input name="phone" type="tel" autocomplete="tel" placeholder="0801 234 5678"></label></div>
+  <div id="vf" class="${role?"":"hide"}"><label class="field"><span>Restaurant name</span><input name="restaurantName"></label>
+  <div class="row2"><label class="field"><span>Cuisine</span><input name="cuisine" placeholder="Nigerian, Grills, Pastries"></label>
+  <label class="field"><span>Area or address</span><input name="address"></label></div></div>
+  <label class="field"><span>Password</span><input name="password" type="password" minlength="8" autocomplete="new-password" required><small>At least 8 characters.</small></label>
+  <button class="btn block">Create account</button>
+  <p class="muted" style="text-align:center;margin:16px 0 0">Already have an account? <a href="#/login">Sign in</a></p></form></div>`);
+  const sync=()=>{const v=$("input[name=role]:checked").value==="vendor";$("#vf").classList.toggle("hide",!v);$("#vf input[name=restaurantName]").required=v};
+  $$("input[name=role]").forEach(r=>r.onchange=sync);sync();
+  $("#f").onsubmit=async e=>{e.preventDefault();const b=$("#f .btn.block");b.disabled=true;
+    try{me=await api("/auth/signup",{method:"POST",body:Object.fromEntries(new FormData(e.target))});afterAuth();toast("Account created")}
+    catch(x){$("#e").innerHTML=`<div class="err">${esc(x.message)}</div>`;b.disabled=false}};
+}
+
+/* ---------- home ---------- */
+async function home(){
+  view(`<section class="hero"><div class="wrap"><div><h1>Hot food from local kitchens, tracked to your door.</h1>
+  <p>Order from restaurants near you, pay by card, transfer or cash, and watch every step until it arrives.</p>
+  <form class="search" id="sf" role="search"><input id="q" type="search" placeholder="Search restaurants or cuisines" aria-label="Search restaurants or cuisines"><button class="btn hot sm">Search</button></form></div>
+  <div class="ticket" aria-hidden="true"><h3>Order YMO-1042</h3><div class="muted">Sample tracking screen</div>
+  <ol><li class="done"><b>✓</b>Order received</li><li class="done"><b>✓</b>Preparing your food</li><li class="now"><b></b>Rider picked it up</li><li><b></b>Arriving at your door</li><li><b></b>Delivered</li></ol></div></div></section>
+  <section class="wrap sect"><div class="chips" id="chips"></div><div class="grid" id="grid">${'<div class="skel"></div>'.repeat(6)}</div></section>`);
+  const vs=await api("/vendors");let cuisine="",q="";
+  const cuisines=[...new Set(vs.flatMap(v=>v.cuisine.split(/[,/]/).map(c=>c.trim()).filter(Boolean)))].sort();
+  const draw=()=>{
+    $("#chips").innerHTML=vs.length?[["","All"],...cuisines.map(c=>[c,c])].map(([v,l])=>`<button class="chip" data-c="${esc(v)}" aria-pressed="${cuisine===v}">${esc(l)}</button>`).join(""):"";
+    const list=vs.filter(v=>(!cuisine||v.cuisine.toLowerCase().includes(cuisine.toLowerCase()))&&(!q||(v.name+" "+v.cuisine+" "+v.description).toLowerCase().includes(q)))
+      .sort((a,b)=>b.open-a.open);
+    $("#grid").innerHTML=list.length?list.map(v=>`<a class="card rcard ${v.open?"":"closed"}" href="#/r/${esc(v.id)}">
+      <div class="cover" style="background-color:${esc(v.color)}">${initial(v.name)}<span class="pill ${v.open?"":"off"}">${v.open?"Open now":"Closed"}</span></div>
+      <div class="body"><h3>${esc(v.name)}</h3><div class="muted">${esc(v.cuisine||"Restaurant")}${v.address?" · "+esc(v.address):""}</div>
+      <div style="margin-top:8px;font-size:14px">${v.itemCount?`${v.itemCount} items, from <b>${ngn(v.fromPrice)}</b>`:`<span class="muted">Menu coming soon</span>`}</div></div></a>`).join("")
+      :`<div class="empty" style="grid-column:1/-1"><h3>${vs.length?"Nothing matches that search":"No restaurants yet"}</h3><p>${vs.length?"Try a different word or clear the filter.":`Be the first. <a href="#/signup/vendor">Open your restaurant on Ymo Express</a>.`}</p></div>`;
+  };
+  draw();
+  $("#chips").onclick=e=>{const c=e.target.closest(".chip");if(c){cuisine=c.dataset.c;draw()}};
+  $("#q").oninput=e=>{q=e.target.value.trim().toLowerCase();draw()};
+  $("#sf").onsubmit=e=>{e.preventDefault();$("#grid").scrollIntoView()};
+}
+
+/* ---------- restaurant ---------- */
+let curV=null;
+async function vendorPage(id){
+  curV=await api("/vendors/"+id);const v=curV;
+  const cats=[...new Set(v.items.map(i=>i.category||"Mains"))];
+  view(`<div class="rhead" style="background-color:${esc(v.color)}"><div class="wrap"><a class="back" href="#/">← All restaurants</a>
+  <h1>${esc(v.name)}</h1><p>${esc(v.description||v.cuisine||"")}</p>
+  <p style="margin-top:12px"><span class="pill ${v.open?"":"off"}">${v.open?"Open now":"Closed"}</span> ${v.address?`<span style="margin-left:8px">${esc(v.address)}</span>`:""}</p></div></div>
+  <div class="wrap" style="padding-bottom:110px">${!v.open?`<div class="err" style="margin-top:20px">${esc(v.name)} is closed right now. You can look at the menu, but orders are paused.</div>`:""}
+  <div id="menu">${v.items.length?cats.map(c=>`<h2 class="cat">${esc(c)}</h2><div class="card" style="padding:0 20px">${v.items.filter(i=>(i.category||"Mains")===c).map(i=>`
+    <div class="item"><div><b>${esc(i.name)}</b>${i.desc?`<div class="muted">${esc(i.desc)}</div>`:""}<div class="price">${ngn(i.price)}</div></div>
+    <div data-slot="${esc(i.id)}"></div></div>`).join("")}</div>`).join(""):`<div class="empty"><h3>No menu yet</h3><p>This restaurant hasn't added any food. Check back soon.</p></div>`}</div></div>
+  <div class="cartbar hide" id="cbar"><button class="btn hot" id="cbtn"></button></div>`);
+  $("#menu").onclick=e=>{
+    const t=e.target.closest("button");if(!t)return;
+    if(me?.role==="vendor")return toast("Sign in with a customer account to order");
+    if(t.dataset.add){const it=v.items.find(i=>i.id===t.dataset.add);addToCart(v,it)&&refreshMenuQty()}
+    if(t.dataset.inc){changeQty(t.dataset.inc,1);refreshMenuQty()}
+    if(t.dataset.dec){changeQty(t.dataset.dec,-1);refreshMenuQty()}
+  };
+  $("#cbtn").onclick=openCart;
+  refreshMenuQty();
+}
+function refreshMenuQty(){
+  if(!curV||!$("#menu")){return}
+  $$("[data-slot]").forEach(s=>{
+    const it=curV.items.find(i=>i.id===s.dataset.slot),q=qtyOf(it.id);
+    s.innerHTML=!it.available?`<span class="pill off">Sold out</span>`:!curV.open?"":q?`<div class="stepper"><button data-dec="${esc(it.id)}" aria-label="Remove one ${esc(it.name)}">−</button><span>${q}</span><button data-inc="${esc(it.id)}" aria-label="Add one ${esc(it.name)}">+</button></div>`
+      :`<button class="btn alt sm" data-add="${esc(it.id)}">Add</button>`;
+  });
+  const show=cart.vendorId===curV.id&&cart.items.length;
+  $("#cbar").classList.toggle("hide",!show);
+  if(show)$("#cbtn").innerHTML=`<span>View cart (${cartCount()})</span><span>${ngn(cartSub())}</span>`;
+}
+
+/* ---------- checkout ---------- */
+function needCustomer(){
+  if(!me){lsSet("ymo_next",location.hash);go("#/login");return false}
+  if(me.role!=="customer"){view(`<div class="wrap"><div class="empty"><h3>This needs a customer account</h3><p>You're signed in as a restaurant. Sign out and create a customer account to order.</p></div></div>`);return false}
+  return true;
+}
+async function checkout(){
+  if(!needCustomer())return;
+  if(!cart.items.length){view(`<div class="wrap"><div class="empty"><h3>Your cart is empty</h3><p><a href="#/">Find something to eat</a></p></div></div>`);return}
+  const total=cartSub()+cfg.deliveryFee;
+  view(`<div class="wrap"><div class="split"><form id="f"><h1 style="font-size:34px;margin-bottom:18px">Checkout</h1><div id="e"></div>
+  <div class="card pad" style="margin-bottom:18px"><h3 style="margin-bottom:14px">Delivery details</h3>
+  <div class="row2"><label class="field"><span>Name</span><input name="name" value="${esc(me.name)}" required></label>
+  <label class="field"><span>Phone</span><input name="phone" type="tel" value="${esc(me.phone)}" required></label></div>
+  <label class="field"><span>Delivery address</span><textarea name="addr" required placeholder="House number, street, landmark"></textarea></label>
+  <label class="field" style="margin:0"><span>Note for the restaurant (optional)</span><input name="note" maxlength="200" placeholder="Less pepper, please"></label></div>
+  <div class="card pad"><h3 style="margin-bottom:14px">How do you want to pay?</h3>
+  <label class="pay ${cfg.card?"":"off"}"><input type="radio" name="pay" value="Card" ${cfg.card?"checked":"disabled"}><span><b>Pay with card</b><br><span class="muted">Secure checkout by Paystack.${cfg.card?"":" Not available yet."}</span></span></label>
+  <label class="pay"><input type="radio" name="pay" value="Transfer" ${cfg.card?"":"checked"}><span><b>Bank transfer</b><br><span class="muted">You'll get the restaurant's account details after ordering.</span></span></label>
+  <label class="pay"><input type="radio" name="pay" value="Cash"><span><b>Cash on delivery</b><br><span class="muted">Pay the rider when your food arrives.</span></span></label></div></form>
+  <aside class="card pad" style="position:sticky;top:84px"><h3>${esc(cart.vendorName)}</h3>
+  <div style="margin:12px 0">${cart.items.map(i=>`<div class="line"><span>${i.q} × ${esc(i.n)}</span><span>${ngn(i.p*i.q)}</span></div>`).join("")}</div>
+  <div class="line"><span class="muted">Subtotal</span><span>${ngn(cartSub())}</span></div><div class="line"><span class="muted">Delivery</span><span>${ngn(cfg.deliveryFee)}</span></div>
+  <div class="line total"><span>Total</span><span>${ngn(total)}</span></div>
+  <button class="btn hot block" id="place" form="f" style="margin-top:14px">Place order</button></aside></div></div>`);
+  $("#f").onsubmit=async e=>{
+    e.preventDefault();const b=$("#place");b.disabled=true;b.textContent="Placing order…";
+    const fd=Object.fromEntries(new FormData(e.target));
+    try{
+      const r=await api("/orders",{method:"POST",body:{vendorId:cart.vendorId,items:cart.items.map(({id,q})=>({id,q})),...fd}});
+      cart={vendorId:null,vendorName:"",items:[]};saveCart();
+      if(r.payUrl)location.href=r.payUrl;else go("#/order/"+r.id);
+    }catch(x){$("#e").innerHTML=`<div class="err">${esc(x.message)}</div>`;b.disabled=false;b.textContent="Place order";scrollTo(0,0)}
+  };
+}
+
+/* ---------- order tracking ---------- */
+const stagePill=o=>!o.paid&&o.pay!=="Cash"?`<span class="pill warn">Awaiting payment</span>`:o.stage>=4?`<span class="pill">Delivered</span>`:`<span class="pill">${esc(o.stageName)}</span>`;
+async function orderPage(id){
+  const draw=async first=>{
+    let o=await api("/orders/"+id);
+    if(o.pay==="Card"&&!o.paid){try{await api(`/orders/${id}/verify`);o=await api("/orders/"+id)}catch{}}
+    if(!$("#ot")&&!first)return;
+    const waiting=!o.paid&&o.pay!=="Cash";
+    view(`<div class="wrap"><div class="split" id="ot"><div><a class="muted" href="#/orders">← My orders</a>
+    <h1 style="font-size:34px;margin:10px 0 4px">${o.stage>=4?"Enjoy your meal":waiting?"Almost there":"We're on it"}</h1>
+    <p class="muted" style="margin:0">Order ${esc(o.id)} from ${esc(o.restaurant)}</p>
+    ${waiting?paymentBox(o):`<ol class="track">${o.stages.map((s,i)=>`<li class="${i<o.stage||o.stage>=4?"done":i===o.stage?"now":""}"><b>${i<o.stage||o.stage>=4?"✓":""}</b>${esc(s)}</li>`).join("")}</ol>`}</div>
+    <aside class="card pad"><h3>Your order</h3><div style="margin:12px 0">${o.items.map(i=>`<div class="line"><span>${i.q} × ${esc(i.n)}</span><span>${ngn(i.p*i.q)}</span></div>`).join("")}</div>
+    <div class="line"><span class="muted">Delivery</span><span>${ngn(o.fee)}</span></div><div class="line total"><span>Total</span><span>${ngn(o.total)}</span></div>
+    <p class="muted" style="margin:14px 0 0;font-size:14px">${esc(o.pay)}${o.paid?" · paid":""}<br>${esc(o.name)} · ${esc(o.phone)}<br>${esc(o.addr)}</p></aside></div></div>`);
+    $("#sent")?.addEventListener("click",async e=>{e.target.disabled=true;await api(`/orders/${id}/sent`,{method:"POST"});toast("Thanks. The restaurant has been told.");draw()});
+    $("#chk")?.addEventListener("click",async e=>{e.target.disabled=true;await draw();toast("Still waiting for payment")});
+    if(o.stage<4&&!waiting||waiting){clearInterval(timer);timer=setInterval(()=>draw().catch(()=>{}),8000)}
+  };
+  await draw(true);
+}
+function paymentBox(o){
+  if(o.pay==="Card")return `<div class="card pad" style="margin-top:22px"><h3>Payment not completed</h3><p class="muted">If you already paid, check again in a moment. Otherwise place the order again.</p><button class="btn" id="chk">Check payment</button></div>`;
+  return `<div class="card pad" style="margin-top:22px"><h3>Send ${ngn(o.total)} by bank transfer</h3>
+  <p style="white-space:pre-wrap;background:var(--green-t);border-radius:10px;padding:12px;margin:12px 0">${esc(o.transferInfo||"The restaurant hasn't added account details yet. Call them to get them.")}</p>
+  <p class="muted">Use <b>${esc(o.id)}</b> as the payment reference. After you send it, tap the button below.</p>
+  ${o.sent?`<span class="pill warn">Waiting for the restaurant to confirm</span>`:`<button class="btn" id="sent">I've sent the money</button>`}</div>`;
+}
+async function ordersPage(){
+  if(!needCustomer())return;
+  const os=await api("/my/orders");
+  view(`<div class="wrap" style="padding:32px 20px 60px"><h1 style="font-size:34px;margin-bottom:18px">My orders</h1>${os.length?`<div class="card olist">${os.map(o=>`<a href="#/order/${esc(o.id)}"><div><b>${esc(o.restaurant)}</b><div class="muted">${esc(o.id)} · ${new Date(o.createdAt).toLocaleDateString("en-NG",{day:"numeric",month:"short"})} · ${ngn(o.total)}</div></div>${stagePill(o)}</a>`).join("")}</div>`
+  :`<div class="empty"><h3>No orders yet</h3><p>When you order, it shows up here. <a href="#/">Browse restaurants</a></p></div>`}</div>`);
+}
+
+/* ---------- vendor dashboard ---------- */
+let dtab="orders",dfilter="active",V=null;
+async function dashboard(){
+  if(!me){lsSet("ymo_next","#/dashboard");return go("#/login")}
+  if(me.role!=="vendor"){view(`<div class="wrap"><div class="empty"><h3>Restaurant accounts only</h3><p>Create a restaurant account to sell on Ymo Express.</p></div></div>`);return}
+  V=await api("/vendor/me");
+  view(`<div class="wrap"><div class="dh"><div><h1>${esc(V.name)}</h1><div class="muted">Restaurant dashboard</div></div>
+  <label style="display:flex;align-items:center;gap:10px;font-weight:700"><span id="openlbl">${V.open?"Open for orders":"Closed"}</span><span class="switch"><input type="checkbox" id="open" ${V.open?"checked":""} aria-label="Open for orders"><i></i></span></label></div>
+  <div class="tabs" role="tablist">${[["orders","Orders"],["menu","Menu"],["settings","Settings"]].map(([k,l])=>`<button role="tab" data-t="${k}" aria-selected="${dtab===k}">${l}</button>`).join("")}</div>
+  <div id="panel" style="padding-bottom:60px"></div></div>`);
+  $("#open").onchange=async e=>{V=await api("/vendor/me",{method:"PATCH",body:{open:e.target.checked}});$("#openlbl").textContent=V.open?"Open for orders":"Closed";toast(V.open?"You're open for orders":"You're closed")};
+  $(".tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;dtab=b.dataset.t;$$(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));panel()};
+  panel();
+}
+function panel(){clearInterval(timer);({orders:ordersPanel,menu:menuPanel,settings:settingsPanel})[dtab]()}
+
+async function ordersPanel(){
+  const p=$("#panel");
+  const load=async()=>{
+    const os=await api("/vendor/orders");if(dtab!=="orders"||!$("#panel"))return;
+    const act=os.filter(o=>o.stage<4),done=os.filter(o=>o.stage>=4),list=dfilter==="active"?act:done;
+    p.innerHTML=`${V.transferInfo?"":`<div class="err" style="background:#fff3cd;color:#7a5a00">Add your bank account in <a href="#/dashboard" id="gotoset">Settings</a> so customers can pay you by transfer.</div>`}<div class="seg" style="max-width:320px"><label><input type="radio" name="fl" value="active" ${dfilter==="active"?"checked":""}>Active (${act.length})</label><label><input type="radio" name="fl" value="done" ${dfilter==="done"?"checked":""}>Delivered (${done.length})</label></div>
+    ${list.length?list.map(o=>{
+      const next=o.stage<4?o.stages?.[o.stage+1]:null,names=["Order received","Preparing your food","Rider picked it up","Arriving at your door","Delivered"];
+      const needPay=!o.paid&&o.pay==="Transfer";
+      return `<div class="card ocard"><div class="top"><div><b style="font-size:18px">${esc(o.id)}</b> <span class="muted">${new Date(o.createdAt).toLocaleTimeString("en-NG",{hour:"numeric",minute:"2-digit"})}</span></div>
+      <div>${needPay?`<span class="pill warn">${o.claimed?"Customer says they've paid":"Awaiting transfer"}</span>`:`<span class="pill">${esc(o.stageName)}</span>`} <span class="pill off">${esc(o.pay)}${o.paid&&o.pay!=="Cash"?" · paid":""}</span></div></div>
+      <ul>${o.items.map(i=>`<li>${i.q} × ${esc(i.n)}</li>`).join("")}</ul>
+      <div><b>${ngn(o.total)}</b> <span class="muted">incl. ${ngn(o.fee)} delivery</span></div>
+      <div class="muted" style="margin-top:6px">${esc(o.name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a><br>${esc(o.addr)}${o.note?`<br><i>Note: ${esc(o.note)}</i>`:""}</div>
+      ${o.stage<4?`<div class="acts">${needPay?`<button class="btn sm" data-confirm="${esc(o.id)}">Confirm payment received</button>`
+        :`<button class="btn sm hot" data-stage="${esc(o.id)}" data-to="${o.stage+1}">Mark as: ${esc(names[o.stage+1])}</button>`}</div>`:""}</div>`}).join("")
+    :`<div class="empty"><h3>${dfilter==="active"?"No active orders":"Nothing delivered yet"}</h3><p>${dfilter==="active"?"New orders show up here automatically.":"Finished orders will be listed here."}</p></div>`}`;
+    $$("input[name=fl]",p).forEach(r=>r.onchange=()=>{dfilter=r.value;load()});
+    $("#gotoset")?.addEventListener("click",e=>{e.preventDefault();$('.tabs [data-t=settings]').click()});
+  };
+  p.onclick=async e=>{
+    const b=e.target.closest("button");if(!b)return;b.disabled=true;
+    try{
+      if(b.dataset.confirm){await api(`/orders/${b.dataset.confirm}/confirm`,{method:"POST"});toast("Payment confirmed")}
+      if(b.dataset.stage){await api(`/orders/${b.dataset.stage}`,{method:"PATCH",body:{stage:+b.dataset.to}});toast("Customer notified")}
+      load();
+    }catch(x){toast(x.message);b.disabled=false}
+  };
+  p.innerHTML=`<div class="skel" style="height:120px"></div>`;
+  await load();
+  timer=setInterval(()=>{if(!$("dialog[open]"))load().catch(()=>{})},15000);
+}
+
+function menuPanel(){
+  const p=$("#panel"),cats=[...new Set(V.items.map(i=>i.category||"Mains"))];
+  p.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap"><div class="muted">${V.items.length} item${V.items.length===1?"":"s"}. Turn an item off when it runs out.</div><button class="btn" id="add">Add item</button></div>
+  ${V.items.length?cats.map(c=>`<h3 style="margin:22px 0 10px">${esc(c)}</h3><div class="card">${V.items.filter(i=>(i.category||"Mains")===c).map(i=>`
+    <div class="mitem ${i.available?"":"off"}"><div style="min-width:0"><b>${esc(i.name)}</b><div class="muted">${ngn(i.price)}${i.desc?" · "+esc(i.desc):""}</div></div>
+    <div style="display:flex;gap:10px;align-items:center;flex:none"><button class="btn alt sm" data-edit="${esc(i.id)}">Edit</button>
+    <label class="switch"><input type="checkbox" data-avail="${esc(i.id)}" ${i.available?"checked":""} aria-label="${esc(i.name)} available"><i></i></label></div></div>`).join("")}</div>`).join("")
+  :`<div class="empty"><h3>Your menu is empty</h3><p>Add your first dish so customers can order from you.</p></div>`}`;
+  $("#add").onclick=()=>itemDialog();
+  p.onclick=e=>{const b=e.target.closest("[data-edit]");if(b)itemDialog(V.items.find(i=>i.id===b.dataset.edit))};
+  p.onchange=async e=>{const c=e.target.closest("[data-avail]");if(!c)return;
+    try{const it=await api("/vendor/items/"+c.dataset.avail,{method:"PATCH",body:{available:c.checked}});Object.assign(V.items.find(i=>i.id===it.id),it);menuPanel()}catch(x){toast(x.message)}};
+}
+function itemDialog(it){
+  const d=$("#dlg"),cats=[...new Set(V.items.map(i=>i.category||"Mains"))];
+  d.innerHTML=`<form method="dialog" id="df"><h2 style="font-size:24px;margin-bottom:16px">${it?"Edit item":"Add item"}</h2><div id="de"></div>
+  <label class="field"><span>Name</span><input name="name" value="${esc(it?.name)}" required maxlength="80"></label>
+  <div class="row2"><label class="field"><span>Price (₦)</span><input name="price" type="number" min="0" step="50" value="${esc(it?.price)}" required></label>
+  <label class="field"><span>Category</span><input name="category" list="cats" value="${esc(it?.category||"")}" placeholder="Mains"><datalist id="cats">${cats.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></label></div>
+  <label class="field"><span>Description</span><input name="desc" value="${esc(it?.desc)}" maxlength="200" placeholder="What's in it?"></label>
+  <div style="display:flex;gap:8px;justify-content:space-between;margin-top:8px"><div>${it?`<button type="button" class="btn danger sm" id="del">Delete</button>`:""}</div>
+  <div style="display:flex;gap:8px"><button type="button" class="btn alt" id="cancel">Cancel</button><button class="btn" id="save" value="x">Save</button></div></div></form>`;
+  d.showModal();
+  $("#cancel").onclick=()=>d.close();
+  $("#df").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.target));
+    try{
+      if(it){Object.assign(it,await api("/vendor/items/"+it.id,{method:"PATCH",body:b}))}else V.items.push(await api("/vendor/items",{method:"POST",body:b}));
+      d.close();menuPanel();toast("Saved");
+    }catch(x){$("#de").innerHTML=`<div class="err">${esc(x.message)}</div>`}};
+  $("#del")?.addEventListener("click",async()=>{if(!confirm(`Delete ${it.name}?`))return;
+    try{await api("/vendor/items/"+it.id,{method:"DELETE"});V.items=V.items.filter(i=>i.id!==it.id);d.close();menuPanel();toast("Item deleted")}catch(x){toast(x.message)}});
+}
+function settingsPanel(){
+  $("#panel").innerHTML=`<form class="card pad" id="sf" style="max-width:560px"><div id="se"></div>
+  <label class="field"><span>Restaurant name</span><input name="name" value="${esc(V.name)}" required></label>
+  <div class="row2"><label class="field"><span>Cuisine</span><input name="cuisine" value="${esc(V.cuisine)}"></label><label class="field"><span>Area or address</span><input name="address" value="${esc(V.address)}"></label></div>
+  <label class="field"><span>About your restaurant</span><textarea name="description" maxlength="300">${esc(V.description)}</textarea></label>
+  <label class="field"><span>Bank account for transfers</span><textarea name="transferInfo" maxlength="200" placeholder="Bank name&#10;Account number&#10;Account name">${esc(V.transferInfo)}</textarea><small>Customers who choose bank transfer see this after they order.</small></label>
+  <button class="btn">Save changes</button></form>`;
+  $("#sf").onsubmit=async e=>{e.preventDefault();
+    try{V=await api("/vendor/me",{method:"PATCH",body:Object.fromEntries(new FormData(e.target))});toast("Saved");$(".dh h1").textContent=V.name}
+    catch(x){$("#se").innerHTML=`<div class="err">${esc(x.message)}</div>`}};
+}
+
+/* ---------- router ---------- */
+const routes=[[/^#?\/?$/,home],[/^#\/r\/(\w+)$/,vendorPage],[/^#\/checkout$/,checkout],[/^#\/order\/([\w-]+)$/,orderPage],[/^#\/orders$/,ordersPage],
+  [/^#\/login$/,loginPage],[/^#\/signup(?:\/(vendor))?$/,signupPage],[/^#\/dashboard$/,dashboard]];
+async function route(){
+  clearInterval(timer);curV=null;closeCart();
+  const h=location.hash||"#/";
+  for(const [re,fn] of routes){const m=h.match(re);if(m){
+    scrollTo(0,0);
+    try{await fn(...m.slice(1))}
+    catch(e){
+      if(e.status===401){me=null;renderNav();lsSet("ymo_next",h);return go("#/login")}
+      view(`<div class="wrap"><div class="empty"><h3>${e.status===404?"We couldn't find that":"Something went wrong"}</h3><p>${esc(e.status===404?"It may have been removed.":e.message)}</p><a class="btn" href="#/">Back to restaurants</a></div></div>`);
+    }
+    $("#app").focus({preventScroll:true});return}}
+  view(`<div class="wrap"><div class="empty"><h3>Page not found</h3><a class="btn" href="#/">Back to restaurants</a></div></div>`);
+}
+window.addEventListener("hashchange",route);
+
+(async()=>{
+  const q=new URLSearchParams(location.search);
+  if(q.get("order")){history.replaceState(null,"",location.pathname+"#/order/"+q.get("order"))}
+  try{[me,cfg]=await Promise.all([api("/me"),api("/config")])}catch{}
+  renderNav();route();
+})();
+</script>
+</body>
+</html>
