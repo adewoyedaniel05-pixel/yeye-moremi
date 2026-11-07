@@ -1,0 +1,1 @@
+{"name":"ymo-express","type":"module","scripts":{"start":"node server.js","dev":"node --env-file=.env server.js"},"dependencies":{"country-state-city":"^3.2.1","express":"^4.19.2","nodemailer":"^6.9.14"}}
